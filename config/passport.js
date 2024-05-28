@@ -17,21 +17,21 @@ module.exports = function (passport) {
       },
       (accessToken, refreshToken, profile, done) => {
         // Your verify callback implementation here
-        console.log(accessToken, profile);
+        // console.log(accessToken, profile);
 
         const image = profile.photos[0].value.substring(
           0,
           profile.photos[0].value.indexOf("=")
         );
         const newUser = {
-          googleID: profile.id,
+          googleId: profile.id,
           email: profile.emails[0].value,
           firstName: profile.name.givenName ?? "",
           lastName: profile.name.familyName ?? "",
           img: image,
         };
 
-        Users.findOne({ googleID: profile.id }).then((user) => {
+        Users.findOne({ googleId: profile.id }).then((user) => {
           if (user) {
             done(null, user);
           } else {
@@ -41,4 +41,18 @@ module.exports = function (passport) {
       }
     )
   );
+
+  passport.serializeUser((user, done) => {
+    done(null, user.id);
+  });
+
+  passport.deserializeUser((id, done) => {
+    Users.findById(id)
+      .then((user) => {
+        done(null, user);
+      })
+      .catch((err) => {
+        done(err, null);
+      });
+  });
 };
