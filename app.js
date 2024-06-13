@@ -1,6 +1,7 @@
 const express = require("express");
 const cookieParse = require("cookie-parser");
 const session = require("express-session");
+const { engine } = require("express-handlebars");
 const mongoose = require("mongoose");
 
 //Load user model
@@ -15,9 +16,23 @@ require("./config/passport")(passport);
 
 //Load routes
 const auth = require("./routers/auth");
+const index = require("./routers/index");
 const cookieParser = require("cookie-parser");
 
 const app = express();
+
+//handlebars
+app.engine(
+  "handlebars",
+  engine({
+    defaultLayout: "main",
+    runtimeOptions: {
+      allowProtoPropertiesByDefault: true,
+      allowProtoMethodsByDefault: true,
+    },
+  })
+);
+app.set("view engine", "handlebars");
 
 // Use the session middleware
 app.use(cookieParser());
@@ -34,9 +49,16 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+//Set global var
+app.use((req, res, next) => {
+  res.locals.user = req.user || null;
+  next();
+});
+
 const port = process.env.PORT || 5000;
 
 //Load routes
+app.use("/", index);
 app.use("/auth", auth);
 
 app.listen(port, () => {
@@ -49,11 +71,3 @@ mongoose
     console.log("MongoDB connected...");
   })
   .catch((err) => console.log(err));
-
-app.get("/", (req, res) => {
-  res.send("It works");
-});
-
-app.get("/dashboard", (req, res) => {
-  res.send("DASHBOARD");
-});
