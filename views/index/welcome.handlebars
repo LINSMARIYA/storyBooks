@@ -3,5 +3,7 @@
 <p>Post stories from the times of your life.Sometimes you would like to share it
   with others or you would want those stories to be private.</p>
 <p>Heres the place</p>
-<a href="/auth/google" class="btn red darken-1">Login with
-  <i class="fa-brands fa-google"></i></a>
+{{#if user}}{{else}}
+  <a href="/auth/google" class="btn red darken-1">Login with
+    <i class="fa-brands fa-google"></i></a>
+{{/if}}
